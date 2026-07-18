@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #F6F7FB;
+      --surface: #FFFFFF;
+      --ink:     #111827;
+      --ink-2:   #6B7280;
+      --ink-3:   #9CA3AF;
+      --line:    #E7E9EF;
+      --primary: #0D9488;
+      --primary-d:#0F766E;
+      --primary-l:#E6FBF8;
+      --warn:    #D97706;
+      --warn-l:  #FEF3C7;
+      --danger:  #DC2626;
+      --danger-l:#FEE2E2;
+      --ok:      #059669;
+      --ok-l:    #D1FAE5;
+      --r-sm: 10px; --r-md: 14px; --r-lg: 18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    /* ── NAV ── */
+    .nav {
+      background: var(--surface); border-bottom: 1px solid var(--line);
+      padding: 14px 5%; display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-icon {
+      background: linear-gradient(135deg, var(--primary), var(--primary-d));
+      color: #fff; width: 36px; height: 36px; border-radius: 11px;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+      box-shadow: 0 4px 10px rgba(13,148,136,.25);
+    }
+    .brand-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -.2px; }
+    .brand-sub { font-size: 11px; color: var(--ink-2); font-weight: 500; }
+    .date-chip {
+      background: var(--primary-l); color: var(--primary-d); font-size: 12px; font-weight: 600;
+      padding: 6px 14px; border-radius: 20px;
+    }
+
+    .wrap { padding: 26px 5% 60px; max-width: 1400px; margin: 0 auto; }
+
+    /* ── STAT CARDS ── */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; margin-bottom: 22px; }
+    .sc {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+      padding: 20px 22px; cursor: pointer; position: relative; overflow: hidden;
+      transition: transform .18s, box-shadow .18s;
+    }
+    .sc:hover { transform: translateY(-3px); box-shadow: 0 14px 28px rgba(17,24,39,.08); }
+    .sc-label { font-size: 11.5px; color: var(--ink-2); font-weight: 600; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+    .sc-val { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 36px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+    .sc-sub { font-size: 12px; color: var(--ink-2); margin-top: 5px; }
+    .sc-icon {
+      position: absolute; right: 16px; top: 16px; width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .sc.s-all .sc-val { color: var(--primary-d); } .sc.s-all .sc-icon { background: var(--primary-l); color: var(--primary); }
+    .sc.s-warn .sc-val { color: var(--warn); } .sc.s-warn .sc-icon { background: var(--warn-l); color: var(--warn); }
+    .sc.s-err .sc-val { color: var(--danger); } .sc.s-err .sc-icon { background: var(--danger-l); color: var(--danger); }
+
+    /* ── TOOLBAR ── */
+    .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .chip {
+      background: var(--surface); border: 1px solid var(--line); padding: 7px 16px; border-radius: 20px;
+      font-size: 12.5px; font-weight: 600; color: var(--ink-2); cursor: pointer; transition: all .15s;
+      font-family: inherit;
+    }
+    .chip:hover { border-color: var(--primary); color: var(--primary); }
+    .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .sw { position: relative; margin-left: auto; }
+    .sw i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--ink-3); font-size: 13px; }
+    .search {
+      padding: 9px 16px 9px 38px; border: 1px solid var(--line); border-radius: 20px; font-size: 13px;
+      outline: none; font-family: inherit; width: 240px; background: var(--surface); transition: border-color .2s, box-shadow .2s;
+    }
+    .search:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-l); }
+
+    /* ── LANES ── */
+    #output { background: transparent; }
+    .lane {
+      display: flex; align-items: stretch; margin-bottom: 14px;
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+      border-left: 4px solid var(--lc,#888); overflow: hidden;
+    }
+    .lane-lbl { width: 130px; min-width: 130px; padding: 18px 12px 18px 16px; border-right: 1px solid var(--line); }
+    .lbl-icon { width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; background: var(--lc,#888); margin-bottom: 9px; }
+    .lbl-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12.5px; font-weight: 700; margin-bottom: 4px; }
+    .lbl-count { font-size: 11px; color: var(--ink-2); margin-bottom: 7px; }
+    .lbl-pills { display: flex; flex-direction: column; gap: 4px; }
+    .lbl-pill { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; display: inline-flex; align-items: center; gap: 3px; }
+    .lbl-pill.w { background: var(--warn-l); color: var(--warn); }
+    .lbl-pill.e { background: var(--danger-l); color: var(--danger); }
+    .cards-col { flex: 1; padding: 16px 0 16px 16px; min-width: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(212px,1fr)); gap: 12px; padding-right: 16px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+      overflow: hidden; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(17,24,39,.09); }
+    .card.w { border-color: #FBCB7A; } .card.e { border-color: #F1A0A0; }
+    .cstripe { height: 4px; }
+    .cheader { padding: 12px 14px 9px; border-bottom: 1px solid var(--line); }
+    .cname { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12.5px; font-weight: 700; line-height: 1.4; }
+    .cbody { padding: 11px 14px; flex: 1; display: flex; flex-direction: column; gap: 9px; }
+    .crow { display: flex; justify-content: space-between; align-items: center; }
+    .clbl { font-size: 11px; color: var(--ink-2); display: flex; align-items: center; gap: 4px; }
+    .cval { font-size: 12px; font-weight: 700; }
+    .cval.ov { color: var(--danger); } .cval.wn { color: var(--warn); }
+    .cert {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: var(--bg);
+      padding: 2px 8px; border-radius: 6px; border: 1px solid var(--line); color: var(--ink-2);
+    }
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .badge.ok { background: var(--ok-l); color: var(--ok); }
+    .badge.wn { background: var(--warn-l); color: var(--warn); }
+    .badge.er { background: var(--danger-l); color: var(--danger); }
+    .bdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .pbar { height: 4px; background: #EEF0F5; border-radius: 4px; overflow: hidden; margin-top: 3px; }
+    .pfill { height: 100%; border-radius: 4px; }
+    .pfill.ok { background: var(--ok); } .pfill.wn { background: var(--warn); } .pfill.er { background: var(--danger); }
+
+    /* ── SWIPE FOOTER ── */
+    .cfoot { height: 44px; border-top: 1px solid var(--line); position: relative; overflow: hidden; flex-shrink: 0; }
+    .foot-front {
+      position: absolute; inset: 0; display: flex; align-items: center; gap: 6px; padding: 0 12px;
+      background: #FAFBFD; transition: transform .32s cubic-bezier(.4,0,.2,1);
+    }
+    .foot-back {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 0 12px;
+      background: linear-gradient(90deg, var(--primary-l), #D2F5F0); transform: translateX(100%);
+      transition: transform .32s cubic-bezier(.4,0,.2,1);
+    }
+    .cfoot.swiped .foot-front { transform: translateX(-100%); }
+    .cfoot.swiped .foot-back  { transform: translateX(0); }
+
+    .btn {
+      border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); font-size: 12px;
+      padding: 5px 12px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+      font-family: inherit; font-weight: 600; transition: all .18s; flex-shrink: 0;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-l); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+    .btn.pri { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn.pri:hover { background: var(--primary-d); }
+    .days-chip { font-size: 10.5px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+    .days-chip.wn { color: var(--warn); } .days-chip.er { color: var(--danger); font-weight: 700; }
+
+    .swipe-hint {
+      margin-left: auto; font-size: 11px; color: var(--primary-d);
+      display: flex; align-items: center; gap: 4px;
+      border: 1px dashed var(--primary); padding: 3px 9px; border-radius: 8px;
+      background: var(--primary-l); cursor: pointer; flex-shrink: 0;
+      opacity: 0; transition: opacity .2s;
+    }
+    .cfoot:hover .swipe-hint { opacity: 1; }
+    .cfoot.swiped .swipe-hint { opacity: 0; pointer-events: none; }
+    .swipe-hint i { animation: arrowBounce 1.4s ease-in-out infinite; }
+    @keyframes arrowBounce { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-3px)} }
+
+    .btn-cancel {
+      background: var(--surface); border: 1px solid var(--line); color: var(--ink-2); font-size: 12px;
+      padding: 5px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 5px; transition: all .18s;
+    }
+    .btn-cancel:hover { border-color: #94A3B8; }
+
+    /* ── HISTORY PANEL ── */
+    .hist-toggle {
+      width: 100%; text-align: left; background: none; border: none; border-top: 1px solid var(--line);
+      padding: 7px 14px; font-size: 11px; color: var(--ink-2); cursor: pointer; display: flex; align-items: center;
+      gap: 5px; font-family: inherit; font-weight: 500; transition: background .15s;
+    }
+    .hist-toggle:hover { background: var(--bg); color: var(--ink); }
+    .hist-toggle .chevron { margin-left: auto; font-size: 11px; transition: transform .2s; }
+    .hist-panel { display: none; border-top: 1px solid var(--line); padding: 8px 14px; background: var(--bg); }
+    .hist-panel.open { display: block; }
+    .hist-entry { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+    .hist-entry:last-child { border-bottom: none; }
+    .hist-ts { font-size: 10.5px; color: var(--ink-2); font-family: 'IBM Plex Mono', monospace; flex: 1; min-width: 0; }
+    .hist-latest { font-size: 10px; background: var(--ok-l); color: var(--ok); padding: 1px 6px; border-radius: 10px; font-weight: 700; flex-shrink: 0; }
+    .hist-view {
+      font-size: 10.5px; padding: 2px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface);
+      cursor: pointer; color: var(--ink-2); font-family: inherit; font-weight: 600; transition: all .15s; flex-shrink: 0;
+    }
+    .hist-view:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-l); }
+    .hist-none { font-size: 11.5px; color: var(--ink-2); padding: 4px 0; font-style: italic; }
+
+    /* ── MODAL ── */
+    .overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(17,24,39,.55);
+      backdrop-filter: blur(3px); z-index: 100; display: none; align-items: center; justify-content: center;
+    }
+    .mbox {
+      background: var(--surface); width: 92%; max-width: 900px; height: 88vh; border-radius: 20px;
+      display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 24px 48px rgba(0,0,0,.22);
+    }
+    .mhead { padding: 15px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .mtitle { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14.5px; }
+    .close-btn { background: var(--bg); border: none; cursor: pointer; color: var(--ink-2); font-size: 16px; padding: 6px 9px; border-radius: 8px; transition: background .15s; }
+    .close-btn:hover { background: var(--danger-l); color: var(--danger); }
+
+    .empty { padding: 60px 20px; text-align: center; color: var(--ink-2); }
+    .empty i { font-size: 36px; display: block; margin-bottom: 12px; opacity: .35; }
+    .spinner { width: 32px; height: 32px; border: 3px solid var(--line); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-wrap { padding: 60px 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; color: var(--ink-2); }
+    .up-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(17,24,39,.6); z-index: 200;
+      display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    }
+    .up-overlay p { color: #fff; font-weight: 600; font-size: 15px; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .card { animation: fadeUp .32s cubic-bezier(.4,0,.2,1) both; }
+
+    @media (max-width: 640px) {
+      .lane { flex-direction: column; }
+      .lane-lbl { width: 100%; border-right: none; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+      .lbl-pills { flex-direction: row; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="brand">
+    <div class="brand-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+    <div>
+      <div class="brand-name">Legal Compliance Portal</div>
+      <div class="brand-sub">Peroorkada Factory</div>
+    </div>
+  </div>
+  <span class="date-chip" id="dateLbl"></span>
+</nav>
+
+<input type="file" id="fileInput" style="display:none" onchange="processUpload()">
+<div class="up-overlay" id="upLoader">
+  <div class="spinner" style="width:44px;height:44px;border-width:4px;"></div>
+  <p>Uploading document…</p>
+</div>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="sc s-all" onclick="setStatus('all')">
+      <div class="sc-label">Total Licenses</div>
+      <div class="sc-val" id="cnt-total">—</div>
+      <div class="sc-sub" id="cnt-sub">loading…</div>
+      <div class="sc-icon"><i class="fa-solid fa-folder-open"></i></div>
+    </div>
+    <div class="sc s-warn" onclick="setStatus('warning')">
+      <div class="sc-label">Expiring Soon</div>
+      <div class="sc-val" id="cnt-warn">—</div>
+      <div class="sc-sub">within 60 days</div>
+      <div class="sc-icon"><i class="fa-solid fa-clock"></i></div>
+    </div>
+    <div class="sc s-err" onclick="setStatus('expired')">
+      <div class="sc-label">Action Required</div>
+      <div class="sc-val" id="cnt-err">—</div>
+      <div class="sc-sub">expired / overdue</div>
+      <div class="sc-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div id="catBtns" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    <div class="sw">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="searchBox" class="search" placeholder="Search licenses…" oninput="applyFilters()">
+    </div>
+  </div>
+
+  <div id="output">
+    <div class="loader-wrap"><div class="spinner"></div>Fetching data…</div>
+  </div>
+</div>
+
+<div id="modal" class="overlay">
+  <div class="mbox">
+    <div class="mhead">
+      <span class="mtitle" id="modalTitle">Document Viewer</span>
+      <button class="close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div style="flex:1;overflow:hidden;" id="mFrame"></div>
+  </div>
+</div>
+
+<script>
+  /* ── STATE ── */
+  var masterData = [], catColors = {}, catPalette = ['#0D9488','#4F46E5','#DB2777','#D97706','#0891B2','#65A30D','#9333EA','#DC2626'];
+  var statusFilter = 'all', catFilter = 'All';
+  var uploadTarget = '', uploadPass = '';
+  var swipedFooter = null;
+
+  /* ── API (Apps Script Web App, called via fetch since this page is hosted on GitHub Pages) ── */
+  var API_URL = 'https://script.google.com/macros/s/AKfycbzucQnedngy8gL4rv45EVAd6C_oXf2o0iGCG-MM0eN8jLwX11aguU6hViR9JQ-I2MqL/exec';
+
+  function apiGet(action) {
+    return fetch(API_URL + '?action=' + encodeURIComponent(action))
+      .then(function(r) { return r.json(); });
+  }
+
+  // Content-Type must stay 'text/plain' (not application/json) so the browser
+  // sends a "simple request" — Apps Script Web Apps cannot answer CORS preflights.
+  function apiPost(payload) {
+    return fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    }).then(function(r) { return r.json(); });
+  }
+
+  /* ── BOOT ── */
+  window.onload = function() {
+    var o = { weekday:'short', year:'numeric', month:'short', day:'numeric' };
+    document.getElementById('dateLbl').innerText = new Date().toLocaleDateString('en-US', o);
+    apiGet('getLicenseData').then(init).catch(function(err) {
+      document.getElementById('output').innerHTML =
+        '<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>Could not load data. ' + htmlEsc(err.toString()) + '</div>';
+    });
+  };
+
+  /* ── INIT ── */
+  function init(data) {
+    masterData = data;
+    var idx = 0;
+    data.forEach(function(r) {
+      var c = r[6] ? r[6].trim() : '';
+      if (c && !catColors[c]) catColors[c] = catPalette[idx++ % catPalette.length];
+    });
+    buildCatBtns(data);
+    applyFilters();
+  }
+
+  function buildCatBtns(data) {
+    var cats = Array.from(new Set(data.map(function(r){ return r[6]?r[6].trim():''; }).filter(Boolean))).sort();
+    var h = '<button class="chip on" onclick="setCat(\'All\',this)">All</button>';
+    cats.forEach(function(c){ h += '<button class="chip" onclick="setCat(\'' + jsEsc(c) + '\',this)">' + htmlEsc(c) + '</button>'; });
+    document.getElementById('catBtns').innerHTML = h;
+  }
+
+  /* ── FILTERS ── */
+  function setCat(c, btn) {
+    catFilter = c;
+    document.querySelectorAll('.chip').forEach(function(b){ b.classList.remove('on'); });
+    btn.classList.add('on');
+    applyFilters();
+  }
+
+  function setStatus(s) { statusFilter = s; applyFilters(); }
+
+  function applyFilters() {
+    var q = document.getElementById('searchBox').value.toLowerCase();
+    var filtered = masterData.filter(function(r) {
+      var s   = getStatus(r[3]);
+      var cat = r[6] ? r[6].trim() : '';
+      var matchQ = r.join(' ').toLowerCase().includes(q);
+      var matchS = statusFilter === 'all'
+        || (statusFilter === 'warning' && s.type === 'warning')
+        || (statusFilter === 'expired' && s.type === 'error');
+      var matchC = catFilter === 'All' || cat === catFilter;
+      return matchQ && matchS && matchC;
+    });
+    updateStats(filtered);
+    renderCards(filtered);
+  }
+
+  function updateStats(data) {
+    var warn = 0, err = 0;
+    data.forEach(function(r){ var s=getStatus(r[3]); if(s.type==='warning')warn++; if(s.type==='error')err++; });
+    animCount(document.getElementById('cnt-total'), data.length);
+    animCount(document.getElementById('cnt-warn'),  warn);
+    animCount(document.getElementById('cnt-err'),   err);
+    var cats = new Set(data.map(function(r){ return r[6]?r[6].trim():''; }).filter(Boolean));
+    document.getElementById('cnt-sub').innerText = cats.size + ' categor' + (cats.size===1?'y':'ies');
+  }
+
+  /* ── RENDER ── */
+  function renderCards(data) {
+    var out = document.getElementById('output');
+    if (!data.length) {
+      out.innerHTML = '<div class="empty"><i class="fa-solid fa-folder-open"></i>No matching licenses found.</div>';
+      return;
+    }
+    var groups = {}, order = [];
+    data.forEach(function(r) {
+      var g = (r[6]?r[6].trim():'')||'General';
+      if (!groups[g]) { groups[g]=[]; order.push(g); }
+      groups[g].push(r);
+    });
+    var html = '';
+    order.forEach(function(cat) {
+      var rows  = groups[cat];
+      var color = catColors[cat] || '#888780';
+      var warn  = rows.filter(function(r){ return getStatus(r[3]).type==='warning'; }).length;
+      var err   = rows.filter(function(r){ return getStatus(r[3]).type==='error';   }).length;
+      html += '<div class="lane" style="--lc:' + color + '">';
+      html += '<div class="lane-lbl">';
+      html += '<div class="lbl-icon"><i class="fa-solid fa-tag"></i></div>';
+      html += '<div class="lbl-name">' + htmlEsc(cat) + '</div>';
+      html += '<div class="lbl-count">' + rows.length + ' license' + (rows.length!==1?'s':'') + '</div>';
+      if (warn || err) {
+        html += '<div class="lbl-pills">';
+        if (warn) html += '<span class="lbl-pill w"><i class="fa-solid fa-clock" style="font-size:9px"></i> '+warn+' expiring</span>';
+        if (err)  html += '<span class="lbl-pill e"><i class="fa-solid fa-triangle-exclamation" style="font-size:9px"></i> '+err+' expired</span>';
+        html += '</div>';
+      }
+      html += '</div><div class="cards-col"><div class="grid">';
+      rows.forEach(function(r, i){ html += buildCard(r, i); });
+      html += '</div></div></div>';
+    });
+    out.innerHTML = html;
+
+    /* Attach events AFTER DOM is built — avoids inline onclick quoting issues entirely */
+    attachCardEvents();
+    retrigAnim();
+  }
+
+  /* ── BUILD CARD HTML (no onclick with data — use data-* attrs) ── */
+  function buildCard(r, idx) {
+    var name    = r[1] || '';
+    var cert    = r[2] || '';
+    var rawDate = r[3] || '';
+    var link    = r[5] || '';
+    var cat     = r[6] ? r[6].trim() : '';
+    var s       = getStatus(rawDate);
+    var color   = catColors[cat] || '#888780';
+    var days    = getDaysLeft(rawDate);
+    var entries = link ? link.split(';;').map(function(e){ return e.trim(); }).filter(Boolean) : [];
+    var vCount  = entries.length;
+    var cardCls = 'card' + (s.type==='warning'?' w':'') + (s.type==='error'?' e':'');
+    var dueCls  = 'cval'  + (s.type==='error'?' ov':(s.type==='warning'?' wn':''));
+    var daysCls = 'days-chip' + (s.type==='error'?' er':(s.type==='warning'?' wn':''));
+    var pct     = getProgressPct(rawDate);
+    var uid     = 'c' + Date.now() + '_' + idx;
+
+    /* Compute latest URL for the View button — stored in data attr, opened by JS */
+    var latestUrl = '';
+    if (vCount > 0) {
+      var last = entries[entries.length - 1];
+      var si   = last.indexOf('||');
+      latestUrl = si >= 0 ? last.substring(si + 2).trim() : last;
+    }
+
+    var h = '<div class="' + cardCls + '">';
+    h += '<div class="cstripe" style="background:' + color + '"></div>';
+    h += '<div class="cheader"><div class="cname">' + htmlEsc(name) + '</div></div>';
+    h += '<div class="cbody">';
+    h += '<div class="crow"><span class="clbl"><i class="fa-regular fa-id-card"></i> Cert No.</span><span class="cert">' + htmlEsc(cert||'—') + '</span></div>';
+    h += '<div>';
+    h += '<div class="crow" style="margin-bottom:5px"><span class="clbl"><i class="fa-solid fa-chart-simple"></i> Validity</span>';
+    h += '<span class="badge ' + s.btype + '"><span class="bdot"></span>' + s.label + '</span></div>';
+    h += '<div class="pbar"><div class="pfill ' + s.ptype + '" style="width:' + pct + '%"></div></div>';
+    h += '</div>';
+    h += '<div class="crow"><span class="clbl"><i class="fa-regular fa-calendar"></i> Due</span><span class="' + dueCls + '">' + (fmtDate(rawDate)||'—') + '</span></div>';
+    h += '</div>';
+
+    /* Footer — data-* attrs carry the URL and name safely, no quoting risks */
+    h += '<div class="cfoot" id="cf_' + uid + '">';
+    h += '<div class="foot-front">';
+    /* View btn */
+    if (latestUrl) {
+      h += '<button class="btn js-view" data-url="' + htmlAttr(latestUrl) + '" data-title="' + htmlAttr(name) + '"><i class="fa-regular fa-eye"></i> View</button>';
+    } else {
+      h += '<button class="btn" disabled><i class="fa-regular fa-eye"></i> View</button>';
+    }
+    /* Days chip */
+    if (days !== null) {
+      h += '<span class="' + daysCls + '">' + (days < 0 ? Math.abs(days)+'d ago' : days+'d left') + '</span>';
+    }
+    /* Swipe hint */
+    h += '<span class="swipe-hint js-swipe-open"><i class="fa-solid fa-arrow-left"></i> Upload</span>';
+    h += '</div>';
+    /* Back panel */
+    h += '<div class="foot-back">';
+    h += '<span style="font-size:12px;font-weight:600;color:var(--p)"><i class="fa-solid fa-cloud-arrow-up"></i> Upload new file</span>';
+    h += '<button class="btn-cancel js-swipe-close"><i class="fa-solid fa-xmark"></i> Cancel</button>';
+    h += '<button class="btn pri js-upload" data-item="' + htmlAttr(name) + '"><i class="fa-solid fa-cloud-arrow-up"></i> Upload</button>';
+    h += '</div>';
+    h += '</div>';
+
+    /* History toggle */
+    var panelId = 'hp_' + uid;
+    var togId   = 'ht_' + uid;
+    h += '<button class="hist-toggle" id="' + togId + '" data-panel="' + panelId + '">';
+    h += '<i class="fa-solid fa-clock-rotate-left" style="font-size:11px"></i> ';
+    h += (vCount > 0 ? vCount + ' version' + (vCount>1?'s':'') : 'No files');
+    h += '<i class="fa-solid fa-chevron-down chevron"></i></button>';
+
+    h += '<div class="hist-panel" id="' + panelId + '">';
+    if (vCount === 0) {
+      h += '<div class="hist-none">No documents uploaded yet.</div>';
+    } else {
+      var sorted = entries.slice().reverse();
+      sorted.forEach(function(e, i) {
+        var si2  = e.indexOf('||');
+        var ts   = si2 >= 0 ? e.substring(0, si2).trim() : '—';
+        var url  = si2 >= 0 ? e.substring(si2 + 2).trim() : e;
+        var ver  = sorted.length - i;
+        h += '<div class="hist-entry">';
+        h += '<i class="fa-solid fa-file" style="font-size:12px;color:#94a3b8;flex-shrink:0"></i>';
+        h += '<span class="hist-ts">' + htmlEsc(ts) + '</span>';
+        if (i === 0) h += '<span class="hist-latest">Latest</span>';
+        /* Store URL+title in data attrs on the button */
+        h += '<button class="hist-view js-view" data-url="' + htmlAttr(url) + '" data-title="' + htmlAttr(name + ' — v' + ver) + '">View</button>';
+        h += '</div>';
+      });
+    }
+    h += '</div>';
+    h += '</div>'; /* end .card */
+    return h;
+  }
+
+  /* ── ATTACH EVENTS after innerHTML (avoids all quoting bugs) ── */
+  function attachCardEvents() {
+    /* View buttons (both main and history) */
+    document.querySelectorAll('.js-view').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        openModal(btn.getAttribute('data-url'), btn.getAttribute('data-title'));
+      });
+    });
+
+    /* Swipe open */
+    document.querySelectorAll('.js-swipe-open').forEach(function(el) {
+      el.addEventListener('click', function() {
+        openSwipe(el.closest('.cfoot'));
+      });
+    });
+
+    /* Swipe close / cancel */
+    document.querySelectorAll('.js-swipe-close').forEach(function(el) {
+      el.addEventListener('click', function() {
+        closeSwipe(el.closest('.cfoot'));
+      });
+    });
+
+    /* Upload trigger */
+    document.querySelectorAll('.js-upload').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        startUpload(btn.getAttribute('data-item'));
+      });
+    });
+
+    /* History toggle */
+    document.querySelectorAll('.hist-toggle').forEach(function(tog) {
+      tog.addEventListener('click', function() {
+        var panel  = document.getElementById(tog.getAttribute('data-panel'));
+        var isOpen = panel.classList.contains('open');
+        panel.classList.toggle('open', !isOpen);
+        tog.querySelector('.chevron').style.transform = isOpen ? '' : 'rotate(180deg)';
+      });
+    });
+
+    /* Touch swipe on card footer */
+    document.querySelectorAll('.cfoot').forEach(function(footer) {
+      var tx = null, ty = null;
+      footer.addEventListener('touchstart', function(e) {
+        tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+      }, { passive: true });
+      footer.addEventListener('touchmove', function(e) {
+        if (tx === null) return;
+        if (Math.abs(e.touches[0].clientX - tx) > Math.abs(e.touches[0].clientY - ty)) e.preventDefault();
+      }, { passive: false });
+      footer.addEventListener('touchend', function(e) {
+        if (tx === null) return;
+        var dx = e.changedTouches[0].clientX - tx;
+        var dy = Math.abs(e.changedTouches[0].clientY - ty);
+        if (dy < 30) {
+          if (dx < -50) openSwipe(footer);
+          else if (dx > 50) closeSwipe(footer);
+        }
+        tx = null; ty = null;
+      }, { passive: true });
+    });
+  }
+
+  /* ── SWIPE ── */
+  function openSwipe(footer) {
+    if (swipedFooter && swipedFooter !== footer) closeSwipe(swipedFooter);
+    footer.classList.add('swiped');
+    swipedFooter = footer;
+  }
+  function closeSwipe(footer) {
+    if (!footer) return;
+    footer.classList.remove('swiped');
+    if (swipedFooter === footer) swipedFooter = null;
+  }
+  document.addEventListener('click', function(e) {
+    if (swipedFooter && !e.target.closest('.cfoot')) closeSwipe(swipedFooter);
+  });
+
+  /* ── UPLOAD ── */
+  function startUpload(itemName) {
+    closeSwipe(swipedFooter);
+    var pw = prompt('🔒 Enter Admin PIN to upload:');
+    if (!pw || !pw.trim()) return;
+    uploadPass = pw; uploadTarget = itemName;
+    document.getElementById('fileInput').value = null;
+    document.getElementById('fileInput').click();
+  }
+
+  function processUpload() {
+    var file = document.getElementById('fileInput').files[0];
+    if (!file) return;
+    apiPost({ action: 'checkAuth', pw: uploadPass }).then(function(ok) {
+      if (ok !== 'Valid') { alert('❌ Incorrect PIN.'); uploadPass = ''; return; }
+      document.getElementById('upLoader').style.display = 'flex';
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        apiPost({
+          action: 'uploadFile',
+          data: e.target.result,
+          fileName: file.name,
+          licenseItemName: uploadTarget,
+          pw: uploadPass
+        }).then(function(res) {
+          document.getElementById('upLoader').style.display = 'none';
+          if (res === 'Success') {
+            apiGet('getLicenseData').then(init);
+            alert('✅ Uploaded successfully!');
+          } else { alert(res); }
+          uploadPass = '';
+        }).catch(function(err) {
+          document.getElementById('upLoader').style.display = 'none';
+          alert('Error: ' + err.toString());
+          uploadPass = '';
+        });
+      };
+      reader.readAsDataURL(file);
+    }).catch(function(err) {
+      alert('Error checking PIN: ' + err.toString());
+      uploadPass = '';
+    });
+  }
+
+  /* ── MODAL ── */
+  function openModal(url, title) {
+    if (!url) return;
+    if (url.includes('drive.google.com') && url.includes('/view')) url = url.replace('/view', '/preview');
+    document.getElementById('modalTitle').innerText = title || 'Document Viewer';
+    document.getElementById('mFrame').innerHTML = '<iframe src="' + url + '" style="width:100%;height:100%;border:none;"></iframe>';
+    document.getElementById('modal').style.display = 'flex';
+  }
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('mFrame').innerHTML = '';
+  }
+  window.onclick = function(e) { if (e.target === document.getElementById('modal')) closeModal(); };
+
+  /* ── HELPERS ── */
+  function parseDate(s) {
+    if (!s || s.toLowerCase() === 'na') return null;
+    var p = s.split(/[\/\-]/);
+    if (p.length < 3) return null;
+    var mStr = p[1];
+    var mo = isNaN(mStr)
+      ? ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(mStr.toLowerCase().substring(0,3))
+      : parseInt(mStr) - 1;
+    return new Date(parseInt(p[2]), mo, parseInt(p[0]));
+  }
+  function getDaysLeft(s) { var d = parseDate(s); return d ? Math.ceil((d - new Date()) / 86400000) : null; }
+  function getStatus(s) {
+    var d = getDaysLeft(s);
+    if (d === null) return { label:'N/A',                            type:'ok',      btype:'ok', ptype:'ok'  };
+    if (d < 0)      return { label:'Expired '+Math.abs(d)+'d ago',  type:'error',   btype:'er', ptype:'er'  };
+    if (d === 0)    return { label:'Due Today',                      type:'warning', btype:'wn', ptype:'wn'  };
+    if (d <= 60)    return { label:'Expiring in '+d+'d',             type:'warning', btype:'wn', ptype:'wn'  };
+    return                 { label:'Active',                         type:'ok',      btype:'ok', ptype:'ok'  };
+  }
+  function getProgressPct(s) { var d = getDaysLeft(s); if (d===null) return 100; if (d<=0) return 100; return Math.min(100,Math.max(5,Math.round((d/365)*100))); }
+  function fmtDate(s) {
+    var d = parseDate(s); if (!d) return s;
+    var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return (d.getDate()<10?'0':'')+d.getDate()+' '+mo[d.getMonth()]+' '+d.getFullYear();
+  }
+  function htmlEsc(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function htmlAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+  function jsEsc(s)    { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+  function animCount(el, target) {
+    var start = performance.now(), from = parseInt(el.innerText)||0, dur = 600;
+    function step(now) {
+      var p = Math.min((now-start)/dur,1), ease = 1-Math.pow(1-p,3);
+      el.innerText = Math.round(from+(target-from)*ease);
+      if (p < 1) requestAnimationFrame(step); else el.innerText = target;
+    }
+    requestAnimationFrame(step);
+  }
+  function retrigAnim() {
+    document.querySelectorAll('.card').forEach(function(c,i){
+      c.style.animation='none'; void c.offsetWidth;
+      c.style.animation='fadeUp .3s cubic-bezier(.4,0,.2,1) '+(Math.min(i*.04,.4))+'s both';
+    });
+  }
+</script>
+</html>

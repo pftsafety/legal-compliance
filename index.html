@@ -110,15 +110,24 @@
     .cards-col { flex: 1; padding: 16px 0 16px 16px; min-width: 0; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(212px,1fr)); gap: 12px; padding-right: 16px; }
 
-    /* ── CARDS ── */
+    /* ── CERTIFICATE TILES ── */
     .card {
       background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
-      overflow: hidden; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s;
+      overflow: visible; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s;
+      position: relative;
     }
     .card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(17,24,39,.09); }
     .card.w { border-color: #FBCB7A; } .card.e { border-color: #F1A0A0; }
-    .cstripe { height: 4px; }
-    .cheader { padding: 12px 14px 9px; border-bottom: 1px solid var(--line); }
+    .seal {
+      position: absolute; top: -8px; right: 10px; width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
+      border: 2px solid var(--surface); z-index: 2;
+    }
+    .seal.ok { background: var(--ok); color: #fff; }
+    .seal.wn { background: var(--warn); color: #fff; }
+    .seal.er { background: var(--danger); color: #fff; }
+    .cheader { padding: 14px 14px 9px; border-bottom: 1px dashed var(--line); }
+    .ceyebrow { font-size: 9.5px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; margin-bottom: 3px; }
     .cname { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12.5px; font-weight: 700; line-height: 1.4; }
     .cbody { padding: 11px 14px; flex: 1; display: flex; flex-direction: column; gap: 9px; }
     .crow { display: flex; justify-content: space-between; align-items: center; }
@@ -129,14 +138,17 @@
       font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: var(--bg);
       padding: 2px 8px; border-radius: 6px; border: 1px solid var(--line); color: var(--ink-2);
     }
+    .statusline {
+      display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600;
+      border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 2px;
+    }
+    .statusline.ok { color: var(--ok); } .statusline.wn { color: var(--warn); } .statusline.er { color: var(--danger); }
+    .bdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
     .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
     .badge.ok { background: var(--ok-l); color: var(--ok); }
     .badge.wn { background: var(--warn-l); color: var(--warn); }
     .badge.er { background: var(--danger-l); color: var(--danger); }
-    .bdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-    .pbar { height: 4px; background: #EEF0F5; border-radius: 4px; overflow: hidden; margin-top: 3px; }
-    .pfill { height: 100%; border-radius: 4px; }
-    .pfill.ok { background: var(--ok); } .pfill.wn { background: var(--warn); } .pfill.er { background: var(--danger); }
+
 
     /* ── SWIPE FOOTER ── */
     .cfoot { height: 44px; border-top: 1px solid var(--line); position: relative; overflow: hidden; flex-shrink: 0; }
@@ -463,17 +475,14 @@
       latestUrl = si >= 0 ? last.substring(si + 2).trim() : last;
     }
 
+    var sealIcon = s.btype === 'ok' ? 'fa-check' : (s.btype === 'wn' ? 'fa-clock' : 'fa-xmark');
     var h = '<div class="' + cardCls + '">';
-    h += '<div class="cstripe" style="background:' + color + '"></div>';
-    h += '<div class="cheader"><div class="cname">' + htmlEsc(name) + '</div></div>';
+    h += '<div class="seal ' + s.btype + '"><i class="fa-solid ' + sealIcon + '"></i></div>';
+    h += '<div class="cheader"><div class="ceyebrow">Certificate — ' + htmlEsc(cat||'General') + '</div><div class="cname">' + htmlEsc(name) + '</div></div>';
     h += '<div class="cbody">';
     h += '<div class="crow"><span class="clbl"><i class="fa-regular fa-id-card"></i> Cert No.</span><span class="cert">' + htmlEsc(cert||'—') + '</span></div>';
-    h += '<div>';
-    h += '<div class="crow" style="margin-bottom:5px"><span class="clbl"><i class="fa-solid fa-chart-simple"></i> Validity</span>';
-    h += '<span class="badge ' + s.btype + '"><span class="bdot"></span>' + s.label + '</span></div>';
-    h += '<div class="pbar"><div class="pfill ' + s.ptype + '" style="width:' + pct + '%"></div></div>';
-    h += '</div>';
     h += '<div class="crow"><span class="clbl"><i class="fa-regular fa-calendar"></i> Due</span><span class="' + dueCls + '">' + (fmtDate(rawDate)||'—') + '</span></div>';
+    h += '<div class="statusline ' + s.btype + '"><span class="bdot"></span>' + s.label + '</div>';
     h += '</div>';
 
     /* Footer — data-* attrs carry the URL and name safely, no quoting risks */

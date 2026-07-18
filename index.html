@@ -306,6 +306,7 @@
 <script>
   /* ── STATE ── */
   var masterData = [], catColors = {}, catPalette = ['#0D9488','#4F46E5','#DB2777','#D97706','#0891B2','#65A30D','#9333EA','#DC2626'];
+  var globalCardCounter = 0;
   var statusFilter = 'all', catFilter = 'All';
   var uploadTarget = '', uploadPass = '';
   var swipedFooter = null;
@@ -396,6 +397,7 @@
   /* ── RENDER ── */
   function renderCards(data) {
     var out = document.getElementById('output');
+    globalCardCounter = 0;
     if (!data.length) {
       out.innerHTML = '<div class="empty"><i class="fa-solid fa-folder-open"></i>No matching licenses found.</div>';
       return;
@@ -450,7 +452,8 @@
     var dueCls  = 'cval'  + (s.type==='error'?' ov':(s.type==='warning'?' wn':''));
     var daysCls = 'days-chip' + (s.type==='error'?' er':(s.type==='warning'?' wn':''));
     var pct     = getProgressPct(rawDate);
-    var uid     = 'c' + Date.now() + '_' + idx;
+    globalCardCounter++;
+    var uid     = 'card_' + globalCardCounter;
 
     /* Compute latest URL for the View button — stored in data attr, opened by JS */
     var latestUrl = '';

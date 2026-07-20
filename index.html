@@ -118,10 +118,16 @@
     .card {
       background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
       overflow: hidden; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s;
+      position: relative;
     }
     .card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(17,24,39,.09); }
     .card.w { border-color: #FBCB7A; }
     .card.e { border-color: #F1A0A0; }
+    .renewal-flag {
+      position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 6px;
+      background: var(--progress); color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; z-index: 3; box-shadow: 0 2px 5px rgba(79,70,229,.35);
+    }
     .card.p { border-color: #C7D2FE; }
     .cstripe { height: 4px; }
     .cheader { padding: 12px 14px 9px; border-bottom: 1px solid var(--line); }
@@ -477,6 +483,9 @@
     }
 
     var h = '<div class="' + cardCls + '">';
+    if (renewalFlag === 'In Progress') {
+      h += '<div class="renewal-flag" title="Renewal In Progress"><i class="fa-solid fa-flag"></i></div>';
+    }
     h += '<div class="cstripe" style="background:' + color + '"></div>';
     h += '<div class="cheader"><div class="cname">' + htmlEsc(name) + '</div></div>';
     h += '<div class="cbody">';

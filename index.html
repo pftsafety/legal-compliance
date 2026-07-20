@@ -23,6 +23,8 @@
       --danger-l:#FEE2E2;
       --ok:      #059669;
       --ok-l:    #D1FAE5;
+      --progress:#4F46E5;
+      --progress-l:#E0E7FF;
       --r-sm: 10px; --r-md: 14px; --r-lg: 18px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -71,9 +73,9 @@
       position: absolute; right: 16px; top: 16px; width: 40px; height: 40px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center; font-size: 16px;
     }
-    .sc.s-all .sc-val { color: var(--primary-d); } .sc.s-all .sc-icon { background: var(--primary-l); color: var(--primary); }
-    .sc.s-warn .sc-val { color: var(--warn); } .sc.s-warn .sc-icon { background: var(--warn-l); color: var(--warn); }
-    .sc.s-err .sc-val { color: var(--danger); } .sc.s-err .sc-icon { background: var(--danger-l); color: var(--danger); }
+    .sc.s-all { background: var(--primary-l); } .sc.s-all .sc-val { color: var(--primary-d); } .sc.s-all .sc-icon { background: #fff; color: var(--primary); }
+    .sc.s-warn { background: var(--warn-l); } .sc.s-warn .sc-val { color: var(--warn); } .sc.s-warn .sc-icon { background: #fff; color: var(--warn); }
+    .sc.s-err { background: var(--danger-l); } .sc.s-err .sc-val { color: var(--danger); } .sc.s-err .sc-icon { background: #fff; color: var(--danger); }
 
     /* ── TOOLBAR ── */
     .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
@@ -96,7 +98,7 @@
     #output { background: transparent; }
     .lane {
       display: flex; align-items: stretch; margin-bottom: 14px;
-      background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+      background: color-mix(in srgb, var(--lc,#888) 7%, white); border: 1px solid var(--line); border-radius: var(--r-lg);
       border-left: 4px solid var(--lc,#888); overflow: hidden;
     }
     .lane-lbl { width: 130px; min-width: 130px; padding: 18px 12px 18px 16px; border-right: 1px solid var(--line); }
@@ -110,45 +112,36 @@
     .cards-col { flex: 1; padding: 16px 0 16px 16px; min-width: 0; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(212px,1fr)); gap: 12px; padding-right: 16px; }
 
-    /* ── CERTIFICATE TILES ── */
+    /* ── CARDS ── */
     .card {
       background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
-      overflow: visible; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s;
-      position: relative;
+      overflow: hidden; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s;
     }
     .card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(17,24,39,.09); }
-    .card.w { border-color: #FBCB7A; } .card.e { border-color: #F1A0A0; }
-    .seal {
-      position: absolute; top: -8px; right: 10px; width: 26px; height: 26px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 12px;
-      border: 2px solid var(--surface); z-index: 2;
-    }
-    .seal.ok { background: var(--ok); color: #fff; }
-    .seal.wn { background: var(--warn); color: #fff; }
-    .seal.er { background: var(--danger); color: #fff; }
-    .cheader { padding: 14px 14px 9px; border-bottom: 1px dashed var(--line); }
-    .ceyebrow { font-size: 9.5px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .7px; font-weight: 600; margin-bottom: 3px; }
+    .card.w { border-color: #FBCB7A; }
+    .card.e { border-color: #F1A0A0; }
+    .card.p { border-color: #C7D2FE; }
+    .cstripe { height: 4px; }
+    .cheader { padding: 12px 14px 9px; border-bottom: 1px solid var(--line); }
     .cname { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12.5px; font-weight: 700; line-height: 1.4; }
     .cbody { padding: 11px 14px; flex: 1; display: flex; flex-direction: column; gap: 9px; }
     .crow { display: flex; justify-content: space-between; align-items: center; }
     .clbl { font-size: 11px; color: var(--ink-2); display: flex; align-items: center; gap: 4px; }
     .cval { font-size: 12px; font-weight: 700; }
-    .cval.ov { color: var(--danger); } .cval.wn { color: var(--warn); }
+    .cval.ov { color: var(--danger); } .cval.wn { color: var(--warn); } .cval.pg { color: var(--progress); }
     .cert {
       font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: var(--bg);
       padding: 2px 8px; border-radius: 6px; border: 1px solid var(--line); color: var(--ink-2);
     }
-    .statusline {
-      display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600;
-      border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 2px;
-    }
-    .statusline.ok { color: var(--ok); } .statusline.wn { color: var(--warn); } .statusline.er { color: var(--danger); }
-    .bdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
     .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
     .badge.ok { background: var(--ok-l); color: var(--ok); }
     .badge.wn { background: var(--warn-l); color: var(--warn); }
     .badge.er { background: var(--danger-l); color: var(--danger); }
-
+    .badge.pg { background: var(--progress-l); color: var(--progress); }
+    .bdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .pbar { height: 4px; background: #EEF0F5; border-radius: 4px; overflow: hidden; margin-top: 3px; }
+    .pfill { height: 100%; border-radius: 4px; }
+    .pfill.ok { background: var(--ok); } .pfill.wn { background: var(--warn); } .pfill.er { background: var(--danger); } .pfill.pg { background: var(--progress); }
 
     /* ── SWIPE FOOTER ── */
     .cfoot { height: 44px; border-top: 1px solid var(--line); position: relative; overflow: hidden; flex-shrink: 0; }
@@ -174,7 +167,7 @@
     .btn.pri { background: var(--primary); color: #fff; border-color: var(--primary); }
     .btn.pri:hover { background: var(--primary-d); }
     .days-chip { font-size: 10.5px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
-    .days-chip.wn { color: var(--warn); } .days-chip.er { color: var(--danger); font-weight: 700; }
+    .days-chip.wn { color: var(--warn); } .days-chip.er { color: var(--danger); font-weight: 700; } .days-chip.pg { color: var(--progress); font-weight: 700; }
 
     .swipe-hint {
       margin-left: auto; font-size: 11px; color: var(--primary-d);
@@ -383,12 +376,13 @@
   function applyFilters() {
     var q = document.getElementById('searchBox').value.toLowerCase();
     var filtered = masterData.filter(function(r) {
-      var s   = getStatus(r[3]);
+      var s   = getStatus(r[3], r[7]);
       var cat = r[6] ? r[6].trim() : '';
       var matchQ = r.join(' ').toLowerCase().includes(q);
       var matchS = statusFilter === 'all'
         || (statusFilter === 'warning' && s.type === 'warning')
-        || (statusFilter === 'expired' && s.type === 'error');
+        || (statusFilter === 'expired' && s.type === 'error')
+        || (statusFilter === 'progress' && s.type === 'progress');
       var matchC = catFilter === 'All' || cat === catFilter;
       return matchQ && matchS && matchC;
     });
@@ -397,8 +391,8 @@
   }
 
   function updateStats(data) {
-    var warn = 0, err = 0;
-    data.forEach(function(r){ var s=getStatus(r[3]); if(s.type==='warning')warn++; if(s.type==='error')err++; });
+    var warn = 0, err = 0, prog = 0;
+    data.forEach(function(r){ var s=getStatus(r[3], r[7]); if(s.type==='warning')warn++; if(s.type==='error')err++; if(s.type==='progress')prog++; });
     animCount(document.getElementById('cnt-total'), data.length);
     animCount(document.getElementById('cnt-warn'),  warn);
     animCount(document.getElementById('cnt-err'),   err);
@@ -424,8 +418,8 @@
     order.forEach(function(cat) {
       var rows  = groups[cat];
       var color = catColors[cat] || '#888780';
-      var warn  = rows.filter(function(r){ return getStatus(r[3]).type==='warning'; }).length;
-      var err   = rows.filter(function(r){ return getStatus(r[3]).type==='error';   }).length;
+      var warn  = rows.filter(function(r){ return getStatus(r[3], r[7]).type==='warning'; }).length;
+      var err   = rows.filter(function(r){ return getStatus(r[3], r[7]).type==='error';   }).length;
       html += '<div class="lane" style="--lc:' + color + '">';
       html += '<div class="lane-lbl">';
       html += '<div class="lbl-icon"><i class="fa-solid fa-tag"></i></div>';
@@ -455,14 +449,15 @@
     var rawDate = r[3] || '';
     var link    = r[5] || '';
     var cat     = r[6] ? r[6].trim() : '';
-    var s       = getStatus(rawDate);
+    var renewalFlag = r[7] ? r[7].trim() : '';
+    var s       = getStatus(rawDate, renewalFlag);
     var color   = catColors[cat] || '#888780';
     var days    = getDaysLeft(rawDate);
     var entries = link ? link.split(';;').map(function(e){ return e.trim(); }).filter(Boolean) : [];
     var vCount  = entries.length;
-    var cardCls = 'card' + (s.type==='warning'?' w':'') + (s.type==='error'?' e':'');
-    var dueCls  = 'cval'  + (s.type==='error'?' ov':(s.type==='warning'?' wn':''));
-    var daysCls = 'days-chip' + (s.type==='error'?' er':(s.type==='warning'?' wn':''));
+    var cardCls = 'card' + (s.type==='warning'?' w':'') + (s.type==='error'?' e':'') + (s.type==='progress'?' p':'');
+    var dueCls  = 'cval'  + (s.type==='error'?' ov':(s.type==='warning'?' wn':(s.type==='progress'?' pg':'')));
+    var daysCls = 'days-chip' + (s.type==='error'?' er':(s.type==='warning'?' wn':(s.type==='progress'?' pg':'')));
     var pct     = getProgressPct(rawDate);
     globalCardCounter++;
     var uid     = 'card_' + globalCardCounter;
@@ -475,14 +470,17 @@
       latestUrl = si >= 0 ? last.substring(si + 2).trim() : last;
     }
 
-    var sealIcon = s.btype === 'ok' ? 'fa-check' : (s.btype === 'wn' ? 'fa-clock' : 'fa-xmark');
     var h = '<div class="' + cardCls + '">';
-    h += '<div class="seal ' + s.btype + '"><i class="fa-solid ' + sealIcon + '"></i></div>';
-    h += '<div class="cheader"><div class="ceyebrow">Certificate — ' + htmlEsc(cat||'General') + '</div><div class="cname">' + htmlEsc(name) + '</div></div>';
+    h += '<div class="cstripe" style="background:' + color + '"></div>';
+    h += '<div class="cheader"><div class="cname">' + htmlEsc(name) + '</div></div>';
     h += '<div class="cbody">';
     h += '<div class="crow"><span class="clbl"><i class="fa-regular fa-id-card"></i> Cert No.</span><span class="cert">' + htmlEsc(cert||'—') + '</span></div>';
+    h += '<div>';
+    h += '<div class="crow" style="margin-bottom:5px"><span class="clbl"><i class="fa-solid fa-chart-simple"></i> Validity</span>';
+    h += '<span class="badge ' + s.btype + '"><span class="bdot"></span>' + s.label + '</span></div>';
+    h += '<div class="pbar"><div class="pfill ' + s.ptype + '" style="width:' + pct + '%"></div></div>';
+    h += '</div>';
     h += '<div class="crow"><span class="clbl"><i class="fa-regular fa-calendar"></i> Due</span><span class="' + dueCls + '">' + (fmtDate(rawDate)||'—') + '</span></div>';
-    h += '<div class="statusline ' + s.btype + '"><span class="bdot"></span>' + s.label + '</div>';
     h += '</div>';
 
     /* Footer — data-* attrs carry the URL and name safely, no quoting risks */
@@ -508,6 +506,19 @@
     h += '<button class="btn pri js-upload" data-item="' + htmlAttr(name) + '"><i class="fa-solid fa-cloud-arrow-up"></i> Upload</button>';
     h += '</div>';
     h += '</div>';
+
+    /* Renewal-in-progress toggle — only relevant once a license is actually expired or already flagged */
+    if (s.type === 'error' || s.type === 'progress') {
+      h += '<div style="padding:8px 14px;border-top:1px solid var(--line);">';
+      if (s.type === 'progress') {
+        h += '<button class="btn js-renewal-toggle" data-item="' + htmlAttr(name) + '" data-flag="" style="width:100%;justify-content:center;color:var(--ink-2);">';
+        h += '<i class="fa-solid fa-rotate-left"></i> Clear renewal flag</button>';
+      } else {
+        h += '<button class="btn js-renewal-toggle" data-item="' + htmlAttr(name) + '" data-flag="In Progress" style="width:100%;justify-content:center;color:#4F46E5;border-color:#C7D2FE;">';
+        h += '<i class="fa-solid fa-file-circle-check"></i> Mark renewal in progress</button>';
+      }
+      h += '</div>';
+    }
 
     /* History toggle */
     var panelId = 'hp_' + uid;
@@ -568,6 +579,13 @@
     document.querySelectorAll('.js-upload').forEach(function(btn) {
       btn.addEventListener('click', function() {
         startUpload(btn.getAttribute('data-item'));
+      });
+    });
+
+    /* Renewal-in-progress toggle */
+    document.querySelectorAll('.js-renewal-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        toggleRenewal(btn.getAttribute('data-item'), btn.getAttribute('data-flag'));
       });
     });
 
@@ -663,6 +681,19 @@
     });
   }
 
+  /* ── RENEWAL FLAG ── */
+  function toggleRenewal(itemName, newFlag) {
+    var pw = prompt(newFlag ? '🔒 Enter Admin PIN to mark renewal in progress:' : '🔒 Enter Admin PIN to clear renewal flag:');
+    if (!pw || !pw.trim()) return;
+    apiPost({ action: 'setRenewalFlag', licenseItemName: itemName, flag: newFlag, pw: pw }).then(function(res) {
+      if (res === 'Success') {
+        apiGet('getLicenseData').then(init);
+      } else { alert(res); }
+    }).catch(function(err) {
+      alert('Error: ' + err.toString());
+    });
+  }
+
   /* ── MODAL ── */
   function driveFileId(url) {
     var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -699,10 +730,15 @@
     return new Date(parseInt(p[2]), mo, parseInt(p[0]));
   }
   function getDaysLeft(s) { var d = parseDate(s); return d ? Math.ceil((d - new Date()) / 86400000) : null; }
-  function getStatus(s) {
+  function getStatus(s, renewalFlag) {
     var d = getDaysLeft(s);
     if (d === null) return { label:'N/A',                            type:'ok',      btype:'ok', ptype:'ok'  };
-    if (d < 0)      return { label:'Expired '+Math.abs(d)+'d ago',  type:'error',   btype:'er', ptype:'er'  };
+    if (d < 0) {
+      if (renewalFlag === 'In Progress') {
+        return { label:'Renewal In Progress',                       type:'progress',btype:'pg', ptype:'pg'  };
+      }
+      return { label:'Expired '+Math.abs(d)+'d ago',  type:'error',   btype:'er', ptype:'er'  };
+    }
     if (d === 0)    return { label:'Due Today',                      type:'warning', btype:'wn', ptype:'wn'  };
     if (d <= 60)    return { label:'Expiring in '+d+'d',             type:'warning', btype:'wn', ptype:'wn'  };
     return                 { label:'Active',                         type:'ok',      btype:'ok', ptype:'ok'  };

@@ -140,6 +140,10 @@
     .badge.wn { background: var(--warn-l); color: var(--warn); }
     .badge.er { background: var(--danger-l); color: var(--danger); }
     .badge.pg { background: var(--progress-l); color: var(--progress); }
+    .tag-progress {
+      display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px; background: var(--progress-l); color: var(--progress);
+    }
     .bdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
     .pbar { height: 4px; background: #EEF0F5; border-radius: 4px; overflow: hidden; margin-top: 3px; }
     .pfill { height: 100%; border-radius: 4px; }
@@ -457,9 +461,9 @@
     var days    = getDaysLeft(rawDate);
     var entries = link ? link.split(';;').map(function(e){ return e.trim(); }).filter(Boolean) : [];
     var vCount  = entries.length;
-    var cardCls = 'card' + (s.type==='warning'?' w':'') + (s.type==='error'?' e':'') + (s.type==='progress'?' p':'');
-    var dueCls  = 'cval'  + (s.type==='error'?' ov':(s.type==='warning'?' wn':(s.type==='progress'?' pg':'')));
-    var daysCls = 'days-chip' + (s.type==='error'?' er':(s.type==='warning'?' wn':(s.type==='progress'?' pg':'')));
+    var cardCls = 'card' + (s.type==='warning'?' w':'') + (s.type==='error'?' e':'');
+    var dueCls  = 'cval'  + (s.type==='error'?' ov':(s.type==='warning'?' wn':''));
+    var daysCls = 'days-chip' + (s.type==='error'?' er':(s.type==='warning'?' wn':''));
     var pct     = getProgressPct(rawDate);
     globalCardCounter++;
     var uid     = 'card_' + globalCardCounter;
@@ -480,6 +484,9 @@
     h += '<div>';
     h += '<div class="crow" style="margin-bottom:5px"><span class="clbl"><i class="fa-solid fa-chart-simple"></i> Validity</span>';
     h += '<span class="badge ' + s.btype + '"><span class="bdot"></span>' + s.label + '</span></div>';
+    if (renewalFlag === 'In Progress') {
+      h += '<div class="crow"><span></span><span class="tag-progress"><i class="fa-solid fa-file-circle-check"></i> Renewal In Progress</span></div>';
+    }
     h += '<div class="pbar"><div class="pfill ' + s.ptype + '" style="width:' + pct + '%"></div></div>';
     h += '</div>';
     h += '<div class="crow"><span class="clbl"><i class="fa-regular fa-calendar"></i> Due</span><span class="' + dueCls + '">' + (fmtDate(rawDate)||'—') + '</span></div>';
@@ -509,10 +516,10 @@
     h += '</div>';
     h += '</div>';
 
-    /* Renewal-in-progress toggle — only relevant once a license is actually expired or already flagged */
-    if (s.type === 'error' || s.type === 'progress') {
+    /* Renewal-in-progress toggle — only relevant once a license is actually expired */
+    if (s.type === 'error') {
       h += '<div style="padding:8px 14px;border-top:1px solid var(--line);">';
-      if (s.type === 'progress') {
+      if (renewalFlag === 'In Progress') {
         h += '<button class="btn js-renewal-toggle" data-item="' + htmlAttr(name) + '" data-flag="" style="width:100%;justify-content:center;color:var(--ink-2);">';
         h += '<i class="fa-solid fa-rotate-left"></i> Clear renewal flag</button>';
       } else {
@@ -737,12 +744,7 @@
   function getStatus(s, renewalFlag) {
     var d = getDaysLeft(s);
     if (d === null) return { label:'N/A',                            type:'ok',      btype:'ok', ptype:'ok'  };
-    if (d < 0) {
-      if (renewalFlag === 'In Progress') {
-        return { label:'Renewal In Progress',                       type:'progress',btype:'pg', ptype:'pg'  };
-      }
-      return { label:'Expired '+Math.abs(d)+'d ago',  type:'error',   btype:'er', ptype:'er'  };
-    }
+    if (d < 0)      return { label:'Expired '+Math.abs(d)+'d ago',  type:'error',   btype:'er', ptype:'er'  };
     if (d === 0)    return { label:'Due Today',                      type:'warning', btype:'wn', ptype:'wn'  };
     if (d <= 60)    return { label:'Expiring in '+d+'d',             type:'warning', btype:'wn', ptype:'wn'  };
     return                 { label:'Active',                         type:'ok',      btype:'ok', ptype:'ok'  };

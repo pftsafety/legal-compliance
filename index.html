@@ -483,7 +483,7 @@
     }
 
     var h = '<div class="' + cardCls + '">';
-    if (renewalFlag === 'In Progress') {
+    if (renewalFlag === 'In Progress' && s.type === 'error') {
       h += '<div class="renewal-flag" title="Renewal In Progress"><i class="fa-solid fa-flag"></i></div>';
     }
     h += '<div class="cstripe" style="background:' + color + '"></div>';
@@ -493,7 +493,7 @@
     h += '<div>';
     h += '<div class="crow" style="margin-bottom:5px"><span class="clbl"><i class="fa-solid fa-chart-simple"></i> Validity</span>';
     h += '<span class="badge ' + s.btype + '"><span class="bdot"></span>' + s.label + '</span></div>';
-    if (renewalFlag === 'In Progress') {
+    if (renewalFlag === 'In Progress' && s.type === 'error') {
       h += '<div class="crow"><span></span><span class="tag-progress"><i class="fa-solid fa-file-circle-check"></i> Renewal In Progress</span></div>';
     }
     h += '<div class="pbar"><div class="pfill ' + s.ptype + '" style="width:' + pct + '%"></div></div>';

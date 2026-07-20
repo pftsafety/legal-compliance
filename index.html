@@ -688,6 +688,8 @@
     apiPost({ action: 'setRenewalFlag', licenseItemName: itemName, flag: newFlag, pw: pw }).then(function(res) {
       if (res === 'Success') {
         apiGet('getLicenseData').then(init);
+      } else if (res && typeof res === 'object') {
+        alert(res.error || 'Something went wrong. Make sure the backend has been redeployed with the latest version.');
       } else { alert(res); }
     }).catch(function(err) {
       alert('Error: ' + err.toString());
